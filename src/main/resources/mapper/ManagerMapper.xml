@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.atpisher.thinktoomuch.novel.dao.ManagerMapper">
+    <sql id="managerColumns">
+        a.id,
+        a.mname,
+        a.mpwd,
+        a.memail
+    </sql>
+
+   <select id="selectByNameAndPwd" resultType="Manager">
+       select * from manager where mname=#{mname} and mpwd=#{mpwd};
+   </select>
+
+    <select id="findAllManagers" resultType="Manager">
+       select * from manager;
+   </select>
+
+    <delete id="delete" parameterType="Integer">
+        DELETE FROM manager WHERE id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="Manager">
+        INSERT INTO manager (
+            id,
+            mname,
+            mpwd,
+            memail
+        )
+        VALUES
+        (
+            #{id},
+            #{mname},
+            #{mpwd},
+            #{memail}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE
+            manager
+        SET
+            mname = #{mname},
+            mpwd = #{mpwd},
+            memail = #{memail}
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="getById" resultType="Manager" parameterType="Integer">
+        select * from manager where id=#{id}
+    </select>
+    <!--    根据id删除多个用户-->
+    <delete id="deleteUsersById">
+        delete from manager
+        where id in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <!--分页查询指定条数-->
+    <select id="page" resultType="Manager" parameterType="java.util.Map">
+        SELECT
+        <include refid="managerColumns"/>
+        FROM
+        manager AS a
+        <where>
+            <if test="manager.id!=null and manager.id!=''">
+                and a.id=#{manager.id}
+            </if>
+            <if test="manager.mname!=null and manager.mname!=''">
+                and a.mname like concat('%',#{manager.mname},'%')
+            </if>
+            <if test="manager.memail!=null and manager.memail!=''">
+                and a.memail like concat('%',#{manager.memail},'%')
+            </if>
+        </where>
+        LIMIT #{start},#{length}
+    </select>
+    <!--    查询总条数-->
+    <select id="count" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM
+        manager as a
+        <where>
+1            <if test="id!=null and id!=''">
+                and a.id =#{id}
+            </if>
+            <if test="mname!=null and mname!=''">
+                and a.mname like concat('%',#{mname},'%')
+            </if>
+            <if test="memail!=null and memail!=''">
+                and a.memail like concat('%',#{memail},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

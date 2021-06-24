@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.atpisher.thinktoomuch.novel.dao.NovelMapper">
+    <sql id="novelColumns">
+        a.id,
+        a.nid,
+        a.nname,
+        a.ntype,
+        a.nauthor,
+        a.description,
+        a.nphoto,
+        a.updatetime,
+        a.createtime
+    </sql>
+    <select id="getNovelById" resultType="Novel" parameterType="Integer">
+        select * from novel where id=#{id}
+    </select>
+    <select id="getNovelByNid" resultType="Novel" parameterType="String">
+        select * from novel where nid=#{nid}
+    </select>
+    <insert id="insert" parameterType="Novel">
+        INSERT INTO novel(
+            id,
+            nid,
+            nname,
+            ntype,
+            nauthor,
+            description,
+            nphoto,
+            updatetime,
+            createtime
+        )
+        VALUES
+        (
+            #{id},
+            #{nid},
+            #{nname},
+            #{ntype},
+            #{nauthor},
+            #{description},
+            #{nphoto},
+            #{updatetime},
+            #{createtime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE
+            novel
+        SET
+            nid=#{nid},
+            nname=#{nname},
+            ntype=#{ntype},
+            nauthor=#{nauthor},
+            description=#{description},
+            nphoto=#{nphoto},
+            updatetime=#{updatetime},
+            createtime=#{createtime}
+        WHERE id = #{id}
+    </update>
+
+    <!--    根据id删除多本小说-->
+    <delete id="deleteNovelsById">
+        delete from novel
+        where id in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--分页查询指定条数-->
+    <select id="page" resultType="Novel" parameterType="java.util.Map">
+        SELECT
+       <include refid="novelColumns"/>
+        FROM
+        novel as a
+        <where>
+        <if test="novel.nname!=null and novel.nname!=''">
+            and a.nname like concat('%',#{novel.nname},'%')
+        </if>
+        <if test="novel.nauthor!=null and novel.nauthor!=''">
+            and a.nauthor like concat('%',#{novel.nauthor},'%')
+        </if>
+        <if test="novel.ntype!=null and novel.ntype!=''">
+            and a.nauthor like concat('%',#{novel.ntype},'%')
+        </if>
+    </where>
+        LIMIT #{start},#{length}
+    </select>
+    <!--    查询总条数-->
+    <select id="count" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM
+        novel as a
+        <where>
+            <if test="nname!=null and nname!=''">
+                and a.nname like concat('%',#{nname},'%')
+            </if>
+            <if test="nauthor!=null and nauthor!=''">
+                and a.nauthor like concat('%',#{nauthor},'%')
+            </if>
+            <if test="ntype!=null and ntype!=''">
+                and a.ntype like concat('%',#{ntype},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--关键字搜索-->
+    <select id="selectNovelByKeyWord" resultType="Novel" parameterType="String">
+        SELECT
+        <include refid="novelColumns"/>
+        FROM
+        novel as a
+        where a.nname like concat('%',#{keyword},'%')
+    </select>
+
+    <select id="randomSelectNovel" parameterType="java.util.Map" resultType="Novel">
+        SELECT * FROM  novel
+        <where>
+            <if test="ntype!=null and ntype!=''">
+                and ntype like concat('%',#{ntype},'%')
+            </if>
+        </where>
+        ORDER BY  RAND() LIMIT #{number};
+    </select>
+
+    <select id="latestNovel" parameterType="int" resultType="Novel">
+        select * from novel
+        <where>
+            <if test="ntype!=null and ntype!=''">
+                and ntype like concat('%',#{ntype},'%')
+            </if>
+        </where>
+        order by id desc limit #{number};
+    </select>
+
+    <select id="latestUpdateNovel" parameterType="int" resultType="Novel">
+        select * from novel
+        <where>
+            <if test="ntype!=null and ntype!=''">
+                and ntype like concat('%',#{ntype},'%')
+            </if>
+        </where>
+        order by updatetime desc limit #{number};
+    </select>
+    <select id="getAllNid" resultType="String">
+        SELECT nid from novel;
+    </select>
+
+</mapper>

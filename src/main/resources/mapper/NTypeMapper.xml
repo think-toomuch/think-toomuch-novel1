@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.atpisher.thinktoomuch.novel.dao.NTypeMapper">
+    <select id="getTypeById" resultType="NovelType" parameterType="Integer">
+        select * from noveltype where id=#{id}
+    </select>
+    <insert id="insert" parameterType="NovelType">
+        INSERT INTO noveltype (
+            id,
+            ntype
+        )
+        VALUES
+        (
+            #{id},
+            #{ntype}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE
+            noveltype
+        SET
+            ntype = #{ntype}
+        WHERE id = #{id}
+    </update>
+
+    <!--    根据id删除多个用户-->
+    <delete id="deleteTypesById">
+        delete from noveltype
+        where id in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--分页查询指定条数-->
+    <select id="page" resultType="NovelType" parameterType="java.util.Map">
+        SELECT
+        id,
+        ntype
+        FROM
+        noveltype
+        <where>
+            <if test="novelType.id!=null and novelType.id!=''">
+                and id=#{novelType.id}
+            </if>
+            <if test="novelType.ntype!=null and novelType.ntype!=''">
+                and ntype like concat('%',#{novelType.ntype},'%')
+            </if>
+        </where>
+        LIMIT #{start},#{length}
+    </select>
+    <!--    查询总条数-->
+    <select id="count" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM
+        noveltype
+        <where>
+            <if test="id!=null and id!=''">
+                 and id =#{id}
+            </if>
+            <if test="ntype!=null and ntype!=''">
+                and ntype like concat('%',#{ntype},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getAllType" resultType="NovelType">
+        SELECT * FROM noveltype
+    </select>
+</mapper>

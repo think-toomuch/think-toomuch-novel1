@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.atpisher.thinktoomuch.novel.dao.ChapterMapper">
+    <sql id="chapterColumns">
+        a.id,
+        a.nid,
+        a.cid,
+        a.cname,
+        a.createtime
+    </sql>
+    <select id="getChapterByCid" resultType="Chapter" parameterType="String">
+        select * from chapter where cid=#{cid}
+    </select>
+    <select id="getChapterById" resultType="Chapter" parameterType="Integer">
+        select * from chapter where id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="Chapter">
+        INSERT INTO chapter(
+            id,
+            nid,
+            cid,
+            cname,
+            createtime
+        )
+        VALUES
+        (
+            #{id},
+            #{nid},
+            #{cid},
+            #{cname},
+            #{createtime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE
+            chapter
+        SET
+            nid=#{nid},
+            cname=#{cname},
+            cid=#{cid},
+            createtime=#{createtime}
+        WHERE id = #{id}
+    </update>
+
+    <!--    根据id删除多本小说-->
+    <delete id="deleteChaptersById">
+        delete from chapter
+        where id in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--分页查询指定条数-->
+    <select id="page" resultType="Chapter" parameterType="java.util.Map">
+        SELECT
+        <include refid="chapterColumns"/>
+        FROM
+        chapter as a
+        <where>
+            <if test="chapter.cname!=null and chapter.cname!=''">
+                and a.cname like concat('%',#{chapter.cname},'%')
+            </if>
+            <if test="chapter.cid!=null and chapter.cid!=''">
+                and a.cid like concat('%',#{chapter.cid},'%')
+            </if>
+            <if test="chapter.nid!=null and chapter.nid!=''">
+                and a.nid like concat('%',#{chapter.nid},'%')
+            </if>
+        </where>
+        LIMIT #{start},#{length}
+    </select>
+    <!--    查询总条数-->
+    <select id="count" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM
+        chapter as a
+        <where>
+            <if test="cname!=null and cname!=''">
+                and a.cname like concat('%',#{cname},'%')
+            </if>
+            <if test="nid!=null and nid!=''">
+                and a.nid like concat('%',#{nid},'%')
+            </if>
+            <if test="cid!=null and cid!=''">
+                and a.cid like concat('%',#{cid},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="latestChapter" parameterType="java.util.Map" resultType="Chapter">
+        select * from chapter where nid=#{nid} order by cid desc limit #{number};
+    </select>
+
+    <select id="selectChapterByNid" parameterType="String" resultType="Chapter">
+        SELECT * FROM chapter where nid=#{nid}
+    </select>
+    <select id="getAllCid" resultType="String">
+        SELECT cid from chapter;
+    </select>
+
+</mapper>
